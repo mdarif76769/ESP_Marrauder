@@ -1,3 +1,129 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proffesional Website - Home</title>
+    <!-- Ekhane CSS file link korte paren -->
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px 0;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #77aaff 3px solid;
+        }
+        header h1 {
+            text-align: center;
+            margin: 0;
+            padding-bottom: 10px;
+        }
+        #login-section {
+            float: right;
+            width: 30%;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        #main-content {
+            width: 70%;
+            padding: 20px;
+            float: left;
+            background: #fff;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        form input[type="text"],
+        form input[type="email"],
+        form input[type="password"] {
+            width: calc(100% - 22px); /* Adjust for padding and border */
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        form button {
+            background: #5cb85c;
+            color: #fff;
+            padding: 10px 15px;
+            border: 0;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        form button:hover {
+            background: #4cae4c;
+        }
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Amar Proffesional Website</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="main-content">
+            <h2>Welcome to Our Website</h2>
+            <p>Apnar welcome message o website-er description ekhane likhun. Eta ekta professional website er main content section.</p>
+            <p>Apni ekhane onek kichu add korte paren, jemon: sections, features, portfolios, blogs etc.</p>
+            <!-- Ekhane aro content add korun -->
+        </section>
+
+        <aside id="login-section">
+            <h2>Login</h2>
+            <form action="/login" method="POST">
+                <div>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required placeholder="Your Gmail Address">
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required placeholder="Your Password">
+                </div>
+                <button type="submit">Login with Gmail</button>
+                <!-- Gmail login button er link ba functionality ekhane add korte hobe (JavaScript/Backend diye) -->
+                <p><a href="#">Forgot Password?</a></p>
+                <p>Don't have an account? <a href="#">Sign Up</a></p>
+            </form>
+        </aside>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Amar Company. All rights reserved.</p>
+    </footer>
+
+    <!-- Ekhane JavaScript file link korte paren -->
+    <!-- <script src="script.js"></script> -->
+</body>
+</html>
 <style>
     /* Login Modal Styles */
     .modal {
