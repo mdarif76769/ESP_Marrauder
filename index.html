@@ -2,134 +2,110 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ZEOVKLON | SUPREME NEURAL INTERFACE</title>
+    <title>ZEOVKLON | GLOBAL TRACE</title>
     <style>
-        :root { --neon: #00ff9c; --cyan: #00e5ff; --bg: #000; --panel: rgba(0, 10, 5, 0.95); }
-        body { margin: 0; background: var(--bg); color: var(--neon); font-family: 'Consolas', monospace; overflow: hidden; }
+        :root { --neon: #00ff9c; --cyan: #00e5ff; --alert: #ff003c; --bg: #000; --panel: rgba(0, 10, 5, 0.98); }
+        body { margin: 0; background: var(--bg); color: var(--neon); font-family: 'Consolas', monospace; overflow: hidden; height: 100vh; }
 
-        /* --- MATRIX LOGIN --- */
-        #login-screen { position: fixed; inset: 0; z-index: 10000; background: #000; display: flex; justify-content: center; align-items: center; transition: 1.2s cubic-bezier(0.7, 0, 0.3, 1); }
-        #matrix-canvas { position: absolute; inset: 0; z-index: -1; opacity: 1; }
-        .login-box { text-align: center; background: rgba(0,0,0,0.9); padding: 50px; border: 1px solid var(--neon); box-shadow: 0 0 50px var(--neon); }
-        input[type="password"] { background: transparent; border: none; border-bottom: 2px solid var(--neon); color: var(--neon); padding: 10px; font-size: 24px; text-align: center; outline: none; width: 280px; letter-spacing: 5px; margin-bottom: 20px; }
-
-        /* --- MASTER LAYOUT --- */
-        #master-ui { display: none; height: 100vh; grid-template-columns: 350px 1fr 350px; grid-template-rows: 1fr 400px; gap: 12px; padding: 15px; box-sizing: border-box; background: radial-gradient(circle at center, #001f14 0%, #000 90%); }
+        /* --- LOGIN & ALERTS --- */
+        #login-screen { position: fixed; inset: 0; z-index: 10000; background: #000; display: flex; justify-content: center; align-items: center; transition: 1s; }
+        #matrix-canvas { position: absolute; inset: 0; z-index: -1; }
         
-        /* Central Earth Hub (Boro Kora Hoyeche) */
-        #center-hub { grid-column: 2; grid-row: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(0,255,156,0.2); }
+        #system-alert { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: rgba(255, 0, 60, 0.15); border: 2px solid var(--alert); box-shadow: 0 0 50px var(--alert); color: var(--alert); padding: 30px; text-align: center; z-index: 5000; backdrop-filter: blur(10px); animation: shake 0.3s infinite; }
+        @keyframes shake { 0% { left: 50.1%; } 50% { left: 49.9%; } 100% { left: 50%; } }
+
+        /* MAIN DASHBOARD */
+        #master-ui { display: none; height: 100vh; grid-template-columns: 350px 1fr 350px; grid-template-rows: 1.2fr 1fr; gap: 10px; padding: 10px; box-sizing: border-box; }
+        
+        /* THE HUB */
+        #center-hub { grid-column: 2; grid-row: 1; position: relative; border: 1px solid rgba(0,255,156,0.2); background: radial-gradient(circle, #001f14 0%, #000 85%); overflow: hidden; }
         #earth-canvas { width: 100%; height: 100%; }
-        .active-feed { position: absolute; top: 20px; font-size: 45px; letter-spacing: 20px; color: #fff; text-shadow: 0 0 30px var(--cyan); font-weight: 900; z-index: 10; pointer-events: none; }
+        
+        /* WORLD MAP TRACING OVERLAY */
+        #map-overlay { position: absolute; bottom: 20px; right: 20px; width: 250px; height: 120px; border: 1px solid var(--cyan); background: rgba(0,0,0,0.7); padding: 5px; z-index: 20; }
+        .trace-line { position: absolute; height: 2px; background: var(--alert); width: 0; box-shadow: 0 0 10px var(--alert); }
 
-        /* Sidebar Panels */
-        .sidebar { display: flex; flex-direction: column; gap: 12px; }
-        .panel { border: 1px solid rgba(0,255,156,0.3); background: var(--panel); padding: 12px; border-radius: 2px; flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        .p-head { font-size: 10px; color: var(--cyan); border-bottom: 1px solid #1a332a; padding-bottom: 4px; margin-bottom: 8px; display: flex; justify-content: space-between; font-weight: bold; }
+        .panel { border: 1px solid rgba(0,255,156,0.3); background: var(--panel); padding: 10px; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .p-head { font-size: 10px; color: var(--cyan); border-bottom: 1px solid #1a332a; padding-bottom: 4px; margin-bottom: 8px; font-weight: bold; letter-spacing: 2px; }
 
-        /* Nicher Boro Terminal & File Section */
-        #bottom-section { grid-column: 1 / span 3; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; border-top: 2px solid rgba(0,255,156,0.2); padding-top: 10px; }
+        /* NICHER BHORAT WORKSTATION */
+        #bottom-workstation { grid-column: 1 / span 3; display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr; gap: 10px; }
+        .term-out { flex-grow: 1; font-size: 11px; color: #0f0; overflow-y: auto; line-height: 1.1; font-family: 'Courier New', monospace; background: rgba(0,5,0,0.5); }
 
-        .term-out { flex-grow: 1; font-size: 11px; color: #0f0; overflow-y: auto; line-height: 1.3; font-weight: bold; }
-        .folder-list { display: grid; grid-template-columns: 1fr; gap: 5px; overflow-y: auto; }
-        .file-item { padding: 6px; font-size: 11px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #111; cursor: pointer; color: var(--neon); }
-        .file-item:hover { background: rgba(0,255,156,0.15); color: #fff; box-shadow: inset 0 0 10px var(--neon); }
-
-        /* AI & Pulse */
-        .gemini-voice { width: 70px; height: 70px; border-radius: 50%; background: radial-gradient(circle, var(--cyan), transparent); margin: 10px auto; animation: pulse 1.5s infinite; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; }
+        .gemini-btn { width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle, var(--cyan), transparent); margin: 5px auto; animation: pulse 1.5s infinite; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #000; font-weight: bold; font-size: 10px; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,229,255,0.7); } 70% { box-shadow: 0 0 0 15px rgba(0,229,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0); } }
 
-        button { background: var(--neon); color: #000; border: none; padding: 12px; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; }
+        button { background: var(--neon); color: #000; border: none; padding: 10px; cursor: pointer; font-weight: bold; width: 100%; }
     </style>
 </head>
 <body>
 
+<div id="system-alert">
+    <h1 style="margin: 0; letter-spacing: 5px;">⚠️ NODE BREACH</h1>
+    <p>TRACING INTRUDER ATTEMPT...</p>
+    <button style="background:var(--alert); color:#fff; border:none; padding:10px; cursor:pointer;" onclick="closeAlert()">DEEP SHIELD ACTIVATE</button>
+</div>
+
 <div id="login-screen">
     <canvas id="matrix-canvas"></canvas>
     <div class="login-box">
-        <h1 style="letter-spacing: 12px; margin-bottom: 25px; color: var(--cyan);">CORE AUTHENTICATION</h1>
-        <input type="password" id="passkey" placeholder="ACCESS KEY">
+        <h1 style="letter-spacing: 12px; color: var(--cyan);">CORE LOGIN</h1>
+        <input type="password" id="pass" placeholder="PASSWORD">
         <br>
-        <button onclick="checkPass()">INITIATE DECRYPTION</button>
+        <button onclick="boot()">INITIATE SYNC</button>
     </div>
 </div>
 
 <div id="master-ui">
-    <div class="sidebar">
+    <div style="display: flex; flex-direction: column; gap: 10px;">
         <div class="panel">
-            <div class="p-head"><span>NEURAL_VOICE_UPLINK</span><span></span></div>
-            <div class="gemini-voice" onclick="startGemini()">LIVE</div>
-            <p id="ai-status" style="text-align:center; font-size:11px; color: #fff;">Gemini is Listening...</p>
+            <div class="p-head">GEMINI_AI_VOICE</div>
+            <div class="gemini-btn" onclick="startVoice()">LIVE</div>
+            <p id="ai-status" style="text-align:center; font-size:10px;">Listening...</p>
         </div>
-        <div class="panel">
-            <div class="p-head"><span>CORE_FILESYSTEM</span><span>[ROOT]</span></div>
-            <div class="folder-list">
-                <div class="file-item">📁 /ENCRYPTED_LOGS/</div>
-                <div class="file-item">📁 /SAT_CONTROL/</div>
-                <div class="file-item">📁 /USER_DATA_MIRROR/</div>
-                <div class="file-item">📁 /BYPASS_SCRIPTS/</div>
-                <div class="file-item">📁 /NETWORK_MAPS/</div>
-                <div class="file-item">📄 exploit_v9.sh</div>
-                <div class="file-item">📄 neural_gate.key</div>
+        <div class="panel" style="flex:1;">
+            <div class="p-head">SATELLITE_FOLDERS</div>
+            <div style="font-size:11px; line-height:2;">
+                📁 /SAT_LINK_01/LOGS/<br>
+                📁 /ENCRYPT_CORE/KEYS/<br>
+                📁 /USER_BYPASS/SCRIPTS/<br>
+                📄 world_map.scan<br>
+                📄 node_override.py
             </div>
         </div>
     </div>
-<div id="system-alert">
-    <h1 style="margin: 0; letter-spacing: 5px;">⚠️ WARNING</h1>
-    <p id="alert-msg">UNAUTHORIZED NODE ACCESS DETECTED</p>
-    <div style="font-size: 10px; margin-top: 10px;">TRACE_BACK: 85% COMPLETE</div>
-    <button class="alert-btn" onclick="closeAlert()">INITIATE COUNTER-BYPASS</button>
-</div>
+
     <div id="center-hub">
-        <div class="active-feed">ACTIVE FEED</div>
+        <div style="position: absolute; top: 15px; font-size: 35px; letter-spacing: 15px; color: #fff; text-shadow: 0 0 20px var(--cyan); font-weight: 900; z-index: 10;">NEURAL HUB</div>
         <div id="earth-canvas"></div>
-        <div style="position: absolute; bottom: 20px; font-size: 12px; color: var(--cyan); letter-spacing: 3px; z-index:10;">
-            LAT: <span id="lat">23.8</span> | LONG: <span id="lon">90.4</span> | SYNC: 99.9%
+        <div id="map-overlay">
+            <div style="font-size: 9px; color: var(--cyan);">GLOBAL_NODE_TRACE</div>
+            <div style="width:100%; height:80px; background: url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_with_blue_oceans.svg') center/cover; opacity: 0.5; position: relative; margin-top:5px;">
+                <div id="trace-point" style="position:absolute; width:4px; height:4px; background:red; border-radius:50%; box-shadow: 0 0 10px red;"></div>
+            </div>
         </div>
     </div>
 
-    <div class="sidebar">
+    <div style="display: flex; flex-direction: column; gap: 10px;">
         <div class="panel">
-            <div class="p-head"><span>SYSTEM_TELEMETRY</span><span></span></div>
-            <div style="font-size: 11px; line-height: 2;">
-                NODE ID: 2819/2A<br>
+            <div class="p-head">TELEMETRY_DATA</div>
+            <div style="font-size: 10px;">
                 UPLINK: SECURE_SAT_A1<br>
-                CPU: <span id="cpu">0%</span> | RAM: <span id="ram">0%</span><br>
-                TIME: <span id="clock">00:00:00</span>
+                CPU: <span id="cpu">0%</span><br>
+                IP: 192.168.1.47
             </div>
         </div>
-        <div class="panel">
-            <div class="p-head"><span>ENCRYPTION_NOTES</span><span></span></div>
-            <div style="font-size:11px; color:#aaa;">
-                * Satellite sync: 98.4%<br>
-                * Earth monitoring: ACTIVE<br>
-                * Protocol: ZEOVKLON 4734-X
-            </div>
+        <div class="panel" style="flex:1;">
+            <div class="p-head" style="color:var(--alert)">THREAT_LOGS</div>
+            <div id="threats" style="font-size:9px; color:var(--alert)"></div>
         </div>
     </div>
 
-    <div id="bottom-section">
-        <div class="panel">
-            <div class="p-head"><span>TERMINAL_MAIN</span><span>[v8.4]</span></div>
-            <div id="t1" class="term-out"></div>
-        </div>
-        <div class="panel">
-            <div class="p-head"><span>NETWORK_MONITOR</span><span></span></div>
-            <div id="t2" class="term-out" style="color:var(--cyan)"></div>
-        </div>
-        <div class="panel">
-            <div class="p-head"><span>SUB_FILE_EXPLORER</span><span>[SECURE]</span></div>
-            <div class="folder-list">
-                <div class="file-item">📁 /BACKUP/SCRIPTS/</div>
-                <div class="file-item">📁 /VPN_KEYS/PRIVATE/</div>
-                <div class="file-item">📁 /DATABASE/LOGS/</div>
-                <div class="file-item">📄 main_override.py</div>
-                <div class="file-item">📄 firewall_kill.bin</div>
-            </div>
-        </div>
-        <div class="panel">
-            <div class="p-head"><span>ENCRYPTION_TRAFFIC</span><span></span></div>
-            <div id="t3" class="term-out" style="color:#fff"></div>
-        </div>
+    <div id="bottom-workstation">
+        <div class="panel"><div class="p-head">KALI_MAIN</div><div id="t1" class="term-out"></div></div>
+        <div class="panel"><div class="p-head">NET_SCANNER</div><div id="t2" class="term-out" style="color:var(--cyan)"></div></div>
+        <div class="panel"><div class="p-head">GEO_LOCATOR</div><div id="t3" class="term-out" style="color:#fff"></div></div>
+        <div class="panel"><div class="p-head">SYSTEM_BYPASS</div><div id="t4" class="term-out" style="color:var(--neon)"></div></div>
     </div>
 </div>
 
@@ -138,114 +114,98 @@
 <script type="module">
 import * as THREE from 'three';
 
-// 1. MATRIX EFFECT
-const canvas = document.getElementById('matrix-canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-const drops = Array(Math.floor(canvas.width/20)).fill(1);
-function drawMatrix() {
-    ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = "#00ff9c"; ctx.font = "20px monospace";
-    drops.forEach((y, i) => {
-        ctx.fillText(Math.floor(Math.random()*2), i*20, y*20);
-        if(y*20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-    });
-}
-setInterval(drawMatrix, 50);
+const sfx = new Audio('https://www.soundjay.com/buttons/sounds/button-20.mp3');
+const alertSfx = new Audio('https://www.soundjay.com/communication/sounds/digital-beeping-2.mp3');
 
-// 2. PASSWORD CHECK (55665566)
-window.checkPass = () => {
-    if(document.getElementById('passkey').value === "55665566") {
+function setupRain(id, color, speed) {
+    const c = document.getElementById(id);
+    const ctx = c.getContext('2d');
+    c.width = c.parentElement.clientWidth; c.height = c.parentElement.clientHeight;
+    const drops = Array(Math.floor(c.width/15)).fill(1);
+    setInterval(() => {
+        ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,c.width,c.height);
+        ctx.fillStyle = color; ctx.font = "15px monospace";
+        drops.forEach((y, i) => {
+            ctx.fillText(Math.floor(Math.random()*2), i*15, y*15);
+            if(y*15 > c.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        });
+    }, speed);
+}
+setupRain('matrix-canvas', '#00ff9c', 50);
+
+window.boot = () => {
+    if(document.getElementById('pass').value === "55665566") {
+        sfx.play();
         document.getElementById('login-screen').style.opacity = "0";
         setTimeout(() => {
             document.getElementById('login-screen').style.display = "none";
             document.getElementById('master-ui').style.display = "grid";
-            initEarth(); startTerminals();
-        }, 1200);
+            initEarth(); startTerminals(); animateTracer();
+            setTimeout(() => { alertSfx.play(); document.getElementById('system-alert').style.display="block"; }, 6000);
+        }, 1000);
     } else { alert("ACCESS DENIED"); }
 };
 
-// 3. 3D EARTH
 function initEarth() {
     const container = document.getElementById('earth-canvas');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, container.clientWidth/container.clientHeight, 0.1, 1000);
-    camera.position.z = 2.1;
-
+    camera.position.z = 2.0;
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
-
     const loader = new THREE.TextureLoader();
-    const earth = new THREE.Mesh(
-        new THREE.SphereGeometry(1, 64, 64),
-        new THREE.MeshPhongMaterial({
-            map: loader.load('https://unpkg.com/three-globe/example/img/earth-night.jpg'),
-            bumpMap: loader.load('https://unpkg.com/three-globe/example/img/earth-topology.png'),
-            bumpScale: 0.05,
-            shininess: 15
-        })
-    );
+    const earth = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), new THREE.MeshPhongMaterial({
+        map: loader.load('https://unpkg.com/three-globe/example/img/earth-night.jpg'),
+        bumpMap: loader.load('https://unpkg.com/three-globe/example/img/earth-topology.png'),
+        bumpScale: 0.05
+    }));
     scene.add(earth);
-
-    // Orbiting Satellites
-    const sats = [];
-    for(let i=0; i<6; i++) {
-        const s = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, 0.02), new THREE.MeshBasicMaterial({color: 0x00e5ff}));
-        scene.add(s);
-        sats.push({m: s, r: 1.1 + i*0.08, s: 0.001 + i*0.001});
-    }
-
-    scene.add(new THREE.AmbientLight(0xffffff, 1));
-    const pointLight = new THREE.PointLight(0x00ff9c, 2); pointLight.position.set(5, 3, 5); scene.add(pointLight);
-
+    scene.add(new THREE.AmbientLight(0xffffff, 1.2));
     function animate() {
-        requestAnimationFrame(animate);
-        earth.rotation.y += 0.001;
-        const t = Date.now();
-        sats.forEach(s => {
-            s.m.position.set(Math.cos(t*s.s)*s.r, Math.sin(t*s.s)*0.2, Math.sin(t*s.s)*s.r);
-        });
+        requestAnimationFrame(animate); earth.rotation.y += 0.001;
         renderer.render(scene, camera);
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        document.getElementById('cpu').innerText = (Math.random()*20 + 30).toFixed(0) + "%";
-        document.getElementById('ram').innerText = (Math.random()*10 + 60).toFixed(0) + "%";
-        document.getElementById('lat').innerText = (Math.random()*90).toFixed(1);
-        document.getElementById('lon').innerText = (Math.random()*180).toFixed(1);
+        document.getElementById('cpu').innerText = Math.floor(Math.random()*20+40) + "%";
     }
     animate();
 }
 
-// 4. GEMINI LIVE VOICE
-window.startGemini = () => {
+function animateTracer() {
+    const p = document.getElementById('trace-point');
+    setInterval(() => {
+        p.style.top = Math.random()*80 + "px";
+        p.style.left = Math.random()*240 + "px";
+        document.getElementById('threats').innerHTML += `<div>[WARN] Node Access at ${Math.floor(Math.random()*180)}°E</div>`;
+    }, 2000);
+}
+
+window.startVoice = () => {
+    sfx.play();
     const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     rec.lang = 'bn-BD';
     rec.onresult = (e) => {
         const query = e.results[0][0].transcript;
-        const reply = "Ami Gemini, '" + query + "' shunechi. Uplink stable ache.";
+        const reply = "Ami Gemini, node tracing shuru korchi.";
         document.getElementById('ai-status').innerText = reply;
         const msg = new SpeechSynthesisUtterance(reply);
-        msg.lang = 'bn-BD';
-        window.speechSynthesis.speak(msg);
+        msg.lang = 'bn-BD'; window.speechSynthesis.speak(msg);
     };
     rec.start();
 };
 
-// 5. MULTI-TERMINAL AUTO LOGS
+window.closeAlert = () => { alertSfx.pause(); document.getElementById('system-alert').style.display="none"; }
+
 function startTerminals() {
-    const t1 = document.getElementById('t1');
-    const t2 = document.getElementById('t2');
-    const t3 = document.getElementById('t3');
-    const logs = ["$ scanning_nodes...", "$ access_granted: 55665566", "$ injecting_payload...", "$ encryption_active", "$ satellite_sync: 100%"];
-    let i = 0;
+    const ids = ['t1', 't2', 't3', 't4'];
     setInterval(() => {
-        t1.innerHTML += `<div>> ${logs[i % logs.length]}</div>`;
-        t2.innerHTML += `<div>[NET]: Tracing IP ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.X.X</div>`;
-        t3.innerHTML += `<div>[ENC]: 0x${Math.random().toString(16).substr(2, 8).toUpperCase()} - SYNCED</div>`;
-        t1.scrollTop = t1.scrollHeight; t2.scrollTop = t2.scrollHeight; t3.scrollTop = t3.scrollHeight;
-        i++;
-    }, 1500);
+        ids.forEach(id => {
+            const t = document.getElementById(id);
+            t.innerHTML += `<div>$ kali@zeovklon:~/trace_${Math.random().toString(36).substr(2,4)}</div>`;
+            if(t.childNodes.length > 15) t.removeChild(t.firstChild);
+            t.scrollTop = t.scrollHeight;
+        });
+    }, 1200);
 }
 </script>
 </body>
