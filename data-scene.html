@@ -175,10 +175,10 @@ function addLog(text) {
 }
 
 async function loadDatabase() {
-    const filePath = 'data.json'; 
+    const filePath = 'https://mdarif76769.github.io/ESP_Marrauder/data.json'; 
     try {
         addLog("Loading Data Packets...");
-        const response = await fetch(filePath);
+        const response = await fetch(https://mdarif76769.github.io/ESP_Marrauder/data.json);
         database = await response.json();
         addLog("Database Synced Successfully.");
     } catch (error) {
