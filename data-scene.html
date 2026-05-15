@@ -175,16 +175,22 @@ function addLog(text) {
 }
 
 async function loadDatabase() {
-    const filePath = 'data.json'; 
+    const filePath = 'data.json'; // 'data.json'
     try {
         addLog("Loading Data Packets...");
-        const response = await fetch(data.json);
+        //'data.json'
+        const response = await fetch(filePath); 
+        
+        if (!response.ok) throw new Error("File not found"); // File na thakle error dhorbe
+        
         database = await response.json();
         addLog("Database Synced Successfully.");
     } catch (error) {
+        console.error(error);
         addLog("Error: Data Link Failed.");
     }
 }
+
 window.onload = loadDatabase;
 
 function switchInterface(theme) {
