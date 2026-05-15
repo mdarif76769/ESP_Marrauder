@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ROH PHP ELITE V10 PRO</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Rajdhani:wght@500;700&family=Fira+Code:wght@400&display=swap');
+
+        :root {
+            --green: #00ff66;
+            --cyan: #00e5ff;
+            --bg: #010409;
+            --danger: #ff3e3e;
+            --accent: var(--green);
+            --glass: rgba(5, 10, 18, 0.85);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            width: 100%; height: 100vh; overflow: hidden;
+            background: var(--bg); color: #fff; font-family: 'Rajdhani', sans-serif;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        #bg-canvas { position: fixed; inset: 0; z-index: -1; }
+
+        /* Scannline Effect - Extra Detail */
+        body::before {
+            content: " ";
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 10;
+        }
+
+        .app { width: 100%; max-width: 420px; height: 95vh; padding: 15px; display: flex; flex-direction: column; z-index: 20; }
+
+        .phone-ui {
+            flex: 1; display: flex; flex-direction: column;
+            border-radius: 35px; background: var(--glass);
+            backdrop-filter: blur(20px); border: 1.5px solid var(--accent);
+            box-shadow: 0 0 40px rgba(0, 255, 102, 0.15), inset 0 0 20px rgba(0, 255, 102, 0.05);
+            overflow: hidden; position: relative;
+        }
+
+        .top { padding: 25px 18px; border-bottom: 1px solid rgba(0, 255, 102, 0.2); text-align: center; background: rgba(0,0,0,0.3); }
+        
+        /* Glitch Logo */
+        .logo { 
+            font-family: 'Orbitron', sans-serif; font-size: 22px; color: var(--accent); 
+            text-shadow: 2px 0 var(--danger), -2px 0 var(--cyan);
+            letter-spacing: 3px; font-weight: 900; animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0% { text-shadow: 2px 0 var(--danger), -2px 0 var(--cyan); }
+            50% { text-shadow: -2px 0 var(--danger), 2px 0 var(--cyan); }
+            100% { text-shadow: 2px 0 var(--danger), -2px 0 var(--cyan); }
+        }
+
+        .content { flex: 1; overflow-y: auto; padding: 20px; scrollbar-width: none; }
+
+        /* Terminal Log Area - Extra Detail */
+        #term-log {
+            font-family: 'Fira Code', monospace; font-size: 9px; color: var(--accent);
+            background: rgba(0,0,0,0.4); padding: 8px; border-radius: 10px;
+            margin-bottom: 15px; height: 50px; overflow: hidden; border-left: 2px solid var(--accent);
+            opacity: 0.7;
+        }
+
+        .box { border: 1px dashed rgba(0, 255, 102, 0.3); border-radius: 18px; padding: 20px; background: rgba(255,255,255,0.02); margin-bottom: 15px; }
+        .box-title { color: var(--cyan); font-size: 11px; margin-bottom: 15px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+
+        .input-box {
+            width: 100%; height: 55px; background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0, 255, 102, 0.3);
+            border-radius: 12px; outline: none; padding: 0 15px; color: #fff; font-size: 16px;
+            text-align: center; font-family: 'Orbitron', sans-serif; transition: 0.3s;
+        }
+        .input-box:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 102, 0.2); }
+
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+
+        .btn {
+            height: 50px; border: none; border-radius: 10px; cursor: pointer;
+            font-size: 10px; font-weight: 900; color: #fff; transition: 0.3s;
+            font-family: 'Orbitron', sans-serif; text-transform: uppercase;
+            position: relative; overflow: hidden;
+        }
+        .btn::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: rgba(255,255,255,0.1); transform: rotate(45deg); transition: 0.3s; }
+        .btn:hover::after { left: 100%; }
+
+        .btn-info { background: #1877f2; box-shadow: 0 5px 15px rgba(24, 119, 242, 0.3); }
+        .btn-scan { background: var(--danger); box-shadow: 0 5px 15px rgba(255, 62, 62, 0.3); }
+
+        .result-card { display: none; background: rgba(0,0,0,0.5); border-radius: 20px; padding: 20px; margin-top: 15px; border: 1px solid var(--accent); position: relative; }
+        
+        .label { color: var(--cyan); font-size: 10px; text-transform: uppercase; margin-bottom: 8px; font-weight: 700; }
+        .value-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: rgba(255,255,255,0.04); padding: 12px; border-radius: 10px; border-bottom: 1px solid rgba(0, 255, 102, 0.1); }
+        .value { font-size: 14px; font-weight: 700; color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.2); }
+
+        .copy-btn { background: var(--accent); color: #000; padding: 6px 12px; border-radius: 8px; font-size: 10px; cursor: pointer; font-weight: 900; }
+
+        .fb-btn {
+            display: flex; width: 100%; height: 50px; background: var(--accent); border-radius: 12px;
+            text-decoration: none; color: #000; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 14px; margin-top: 10px; box-shadow: 0 10px 20px rgba(0, 255, 102, 0.2);
+        }
+
+        #loader { display: none; margin: 20px 0; height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+        #bar { width: 0%; height: 100%; background: var(--accent); box-shadow: 0 0 15px var(--accent); }
+
+        .admin-box { margin-top: auto; padding: 20px; text-align: center; }
+        .admin-link { color: var(--accent); text-decoration: none; font-weight: bold; font-size: 12px; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="app">
+    <div class="phone-ui">
+        <div class="top">
+            <div class="logo">ELITE V10 PRO</div>
+        </div>
+        
+        <div class="content">
+            <div id="term-log">> System Ready...<br>> Awaiting Protocol...</div>
+
+            <div class="box">
+                <div class="box-title">Network Scanner</div>
+                <input type="text" id="targetInput" class="input-box" placeholder="Enter UID or Number">
+                
+                <div class="btn-grid">
+                    <button class="btn btn-info" onclick="startScan('user')">ID SEARCH</button>
+                    <button class="btn btn-scan" onclick="startScan('number')">NUM SEARCH</button>
+                </div>
+            </div>
+
+            <div id="loader"><div id="bar"></div></div>
+
+            <div id="resultArea" class="result-card">
+                <div class="label">Target Identity</div>
+                <div class="value-row">
+                    <span id="resName" class="value">---</span>
+                    <span class="copy-btn" onclick="copyData('resName')">COPY</span>
+                </div>
+
+                <div class="label">Primary Link</div>
+                <div class="value-row">
+                    <span id="resLink" class="value">---</span>
+                    <span class="copy-btn" onclick="copyData('resLink')">COPY</span>
+                </div>
+
+                <a id="fbAction" href="#" target="_blank" class="fb-btn">ESTABLISH UPLINK</a>
+            </div>
+
+            <div class="admin-box">
+                <a href="https://t.me/RS5ARIF" target="_blank" class="admin-link">
+                    [ ACCESS OWNER: @RS5ARIF ]
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let database = {}; 
+let grid;
+const logElement = document.getElementById('term-log');
+
+function addLog(text) {
+    logElement.innerHTML = `> ${text}<br>` + logElement.innerHTML.split('<br>').slice(0, 2).join('<br>');
+}
+
+async function loadDatabase() {
+    const filePath = 'Data.json'; 
+    try {
+        addLog("Loading Data Packets...");
+        const response = await fetch(filePath);
+        database = await response.json();
+        addLog("Database Synced Successfully.");
+    } catch (error) {
+        addLog("Error: Data Link Failed.");
+    }
+}
+window.onload = loadDatabase;
+
+function switchInterface(theme) {
+    const root = document.querySelector(':root');
+    if(theme === 'red') {
+        root.style.setProperty('--accent', '#ff3e3e');
+        if(grid) grid.material.color.setHex(0xff0000);
+    } else {
+        root.style.setProperty('--accent', '#00ff66');
+        if(grid) grid.material.color.setHex(0x00ff66);
+    }
+}
+
+function startScan(mode) {
+    const input = document.getElementById('targetInput').value.trim();
+    if(!input) return addLog("Warning: Input Required.");
+
+    addLog(`Initiating ${mode.toUpperCase()} Scan...`);
+    switchInterface(mode === 'number' ? 'red' : 'green');
+
+    document.getElementById('resultArea').style.display = 'none';
+    const loader = document.getElementById('loader');
+    const bar = document.getElementById('bar');
+    loader.style.display = 'block';
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 5;
+        bar.style.width = progress + "%";
+        if(progress % 20 === 0) addLog(`Decryption: ${progress}%`);
+        
+        if(progress >= 100) {
+            clearInterval(interval);
+            loader.style.display = 'none';
+            bar.style.width = "0%";
+            renderOutput(input, mode);
+        }
+    }, 40);
+}
+
+function renderOutput(val, mode) {
+    const resArea = document.getElementById('resultArea');
+    const fbBtn = document.getElementById('fbAction');
+    resArea.style.display = 'block';
+
+    let foundData = mode === 'user' ? database[val] : Object.values(database).find(d => d.phone === val);
+    let foundUid = mode === 'user' ? val : Object.keys(database).find(k => database[k].phone === val);
+
+    if (foundData) {
+        addLog("Success: Match Found.");
+        document.getElementById('resName').innerText = foundData.name;
+        document.getElementById('resLink').innerText = "fb.com/" + foundUid;
+        fbBtn.href = "https://www.facebook.com/" + foundUid;
+        fbBtn.style.display = "flex";
+    } else {
+        addLog("Fail: Data Not Found.");
+        document.getElementById('resName').innerText = "NULL";
+        document.getElementById('resLink').innerText = "N/A";
+        fbBtn.style.display = "none";
+    }
+}
+
+function copyData(id) {
+    const content = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(content);
+    addLog("Clip: Data Copied.");
+}
+
+/* 3D Background */
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('bg-canvas'), alpha: true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+grid = new THREE.GridHelper(100, 40, 0x00ff66, 0x111111);
+scene.add(grid);
+camera.position.z = 15;
+grid.position.y = -5;
+
+function animate() {
+    requestAnimationFrame(animate);
+    grid.rotation.y += 0.003;
+    renderer.render(scene, camera);
+}
+animate();
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+</script>
+</body>
+</html>
