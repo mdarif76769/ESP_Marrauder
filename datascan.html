@@ -123,11 +123,11 @@
         </div>
         
         <div class="content">
-            <div id="term-log">> System Initializing...<br>> Establishing Link...</div>
+            <div id="term-log">> System Ready...<br>> Establishing Link...</div>
 
             <div class="box">
                 <div class="box-title">Network Scanner</div>
-                <input type="text" id="targetInput" class="input-box" placeholder="Enter UID or Phone">
+                <input type="text" id="targetInput" class="input-box" placeholder="Enter ID or Phone">
                 
                 <div class="btn-grid">
                     <button class="btn btn-info" onclick="startScan('user')">ID SEARCH</button>
@@ -144,10 +144,10 @@
                     <span class="copy-btn" onclick="copyData('resName')">COPY</span>
                 </div>
 
-                <div class="label">Primary Link</div>
+                <div class="label" id="dynamicLabel">Primary Data</div>
                 <div class="value-row">
-                    <span id="resLink" class="value">---</span>
-                    <span class="copy-btn" onclick="copyData('resLink')">COPY</span>
+                    <span id="resExtra" class="value">---</span>
+                    <span class="copy-btn" onclick="copyData('resExtra')">COPY</span>
                 </div>
 
                 <a id="fbAction" href="#" target="_blank" class="fb-btn">ESTABLISH UPLINK</a>
@@ -171,26 +171,21 @@ function addLog(text) {
     logElement.innerHTML = `> ${text}<br>` + logElement.innerHTML.split('<br>').slice(0, 1).join('<br>');
 }
 
-// Fixed & Completed loadDatabase
 async function loadDatabase() {
     const filePath = 'https://mdarif76769.github.io/ESP_Marrauder/data.json'; 
     try {
-        addLog("Syncing Remote Database...");
+        addLog("Syncing Database...");
         const response = await fetch(filePath); 
-        
-        if (!response.ok) throw new Error("404"); 
-        
+        if (!response.ok) throw new Error();
         database = await response.json();
-        addLog("Data Synced Successfully.");
+        addLog("Database Synced.");
     } catch (error) {
-        // Fallback to local if remote fails
         try {
-            addLog("Switching to Local Node...");
-            const localResponse = await fetch('data.json');
-            database = await localResponse.json();
+            const fallback = await fetch('data.json');
+            database = await fallback.json();
             addLog("Local Data Loaded.");
         } catch(e) {
-            addLog("CRITICAL: Link Offline.");
+            addLog("CRITICAL: Link Failed.");
         }
     }
 }
@@ -210,7 +205,7 @@ function switchInterface(theme) {
 
 function startScan(mode) {
     const input = document.getElementById('targetInput').value.trim();
-    if(!input) return addLog("Warning: Input Required.");
+    if(!input) return addLog("Error: Input Required.");
 
     addLog(`Initiating ${mode.toUpperCase()} Scan...`);
     switchInterface(mode === 'number' ? 'red' : 'green');
@@ -222,37 +217,48 @@ function startScan(mode) {
     
     let progress = 0;
     const interval = setInterval(() => {
-        progress += 5;
+        progress += 10;
         bar.style.width = progress + "%";
-        if(progress % 20 === 0) addLog(`Processing: ${progress}%`);
-        
         if(progress >= 100) {
             clearInterval(interval);
             loader.style.display = 'none';
             bar.style.width = "0%";
             renderOutput(input, mode);
         }
-    }, 40);
+    }, 50);
 }
 
 function renderOutput(val, mode) {
     const resArea = document.getElementById('resultArea');
     const fbBtn = document.getElementById('fbAction');
+    const dynamicLabel = document.getElementById('dynamicLabel');
+    const resName = document.getElementById('resName');
+    const resExtra = document.getElementById('resExtra');
+    
     resArea.style.display = 'block';
 
     let foundData = mode === 'user' ? database[val] : Object.values(database).find(d => d.phone === val);
     let foundUid = mode === 'user' ? val : Object.keys(database).find(k => database[k].phone === val);
 
     if (foundData) {
-        addLog("Success: Identity Confirmed.");
-        document.getElementById('resName').innerText = foundData.name;
-        document.getElementById('resLink').innerText = "fb.com/" + foundUid;
+        addLog("Match Found.");
+        resName.innerText = foundData.name;
+
+        // Logic: ID sarch korle Number dekhabe, Number sarch korle ID dekhabe
+        if (mode === 'user') {
+            dynamicLabel.innerText = "Phone Number";
+            resExtra.innerText = foundData.phone;
+        } else {
+            dynamicLabel.innerText = "User ID";
+            resExtra.innerText = foundUid;
+        }
+
         fbBtn.href = "https://www.facebook.com/" + foundUid;
         fbBtn.style.display = "flex";
     } else {
-        addLog("Fail: No Records Found.");
-        document.getElementById('resName').innerText = "NULL / NOT FOUND";
-        document.getElementById('resLink').innerText = "N/A";
+        addLog("No Records Found.");
+        resName.innerText = "NOT FOUND";
+        resExtra.innerText = "N/A";
         fbBtn.style.display = "none";
     }
 }
@@ -260,10 +266,10 @@ function renderOutput(val, mode) {
 function copyData(id) {
     const content = document.getElementById(id).innerText;
     navigator.clipboard.writeText(content);
-    addLog("Memory: Data Copied.");
+    addLog("Copied to Clipboard.");
 }
 
-/* 3D Background */
+/* 3D Visualizer */
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({canvas: document.getElementById('bg-canvas'), alpha: true});
@@ -272,7 +278,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 grid = new THREE.GridHelper(100, 40, 0x00ff66, 0x111111);
 scene.add(grid);
 camera.position.z = 15;
-grid.rotation.x = 1.2;
+grid.rotation.x = 1.3;
 
 function animate() {
     requestAnimationFrame(animate);
