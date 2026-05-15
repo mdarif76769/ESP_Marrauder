@@ -3,13 +3,13 @@
 # ⚡ ROH PHP ELITE V10 PRO ⚡
 
 <a href="EIKHANE_TOMAR_WEBSITE_LINK_DAO">
-  <img src="https://img.shields.io/badge/LAUNCH_SCANNER-00FF66?style=for-the-badge&logo=google-chrome&logoColor=black&boxShadow=0px%200px%2020px%20%2300FF66" alt="Launch Tool">
+  <img src="https://mdarif76769.github.io/ESP_Marrauder/" alt="LOUNC TOOL">
 </a>
 
 &nbsp;&nbsp;
 
 <a href="https://t.me/RS5ARIF">
-  <img src="https://img.shields.io/badge/CONTACT_OWNER-1877F2?style=for-the-badge&logo=telegram&logoColor=white" alt="Contact Owner">
+  <img src="https://mdarif76769.github.io/ESP_Marrauder/" alt="DATA SCARCE">
 </a>
 
 <br><br>
